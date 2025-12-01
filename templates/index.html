@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snaps Editor - AI Background Remover & Editor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); line-height: 1.5; height: 100vh; overflow: hidden; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; width: 100%; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-shrink: 0; }
+        .logo { font-size: 1.25rem; font-weight: 700; color: var(--text-sub); display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+        .logo span { color: var(--primary); }
+        nav ul { display: flex; gap: 1.5rem; list-style: none; }
+        nav a { text-decoration: none; color: var(--text-sub); font-weight: 500; transition: color 0.2s; font-size: 0.95rem; }
+        nav a:hover, nav a.active { color: var(--primary); }
+        main { flex: 1; display: flex; flex-direction: column; align-items: center; width: 100%; min-height: 0; overflow: hidden; }
+        .hero { text-align: center; margin-bottom: 1.5rem; max-width: 900px; flex-shrink: 0; }
+        .hero h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.025em; line-height: 1.2; color: var(--text-sub); }
+        .hero h1 span { color: var(--primary); }
+        .hero p { color: var(--text-sub); font-size: 1rem; }
+        #home-view { flex: 1; display: flex; flex-direction: column; min-height: 0; width: 100%; }
+        .home-banner { display: flex; justify-content: center; align-items: center; flex: 1; width: 100%; }
+        .feature-container { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 1.5rem; padding: 2rem; width: 100%; max-width: 1000px; }
+        .feature-showcase { display: flex; gap: 1.5rem; flex-wrap: wrap; justify-content: center; }
+        .feature-card { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 1rem; padding: 1rem; width: 260px; text-align: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s, background 0.2s; }
+        .feature-card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.15); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
+        .feature-card img { width: 100%; height: 150px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 0.75rem; background-color: #f1f5f9; }
+        .feature-card p { font-weight: 600; color: white; font-size: 1rem; }
+        #tool-view { width: 100%; max-width: 1000px; display: flex; flex-direction: column; flex: 1; min-height: 0; }
+        .tool-header { display: flex; align-items: center; margin-bottom: 1rem; flex-shrink: 0; }
+        .back-btn { background-color: var(--primary); color: white; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-weight: 500; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background 0.2s; margin-right: 1rem; }
+        .back-btn:hover { background-color: var(--primary-hover); color: white; }
+        .tool-title { font-size: 1.25rem; font-weight: 700; }
+        .upload-container { background: var(--card-bg); border: 2px dashed var(--border); border-radius: 1.5rem; padding: 2rem; text-align: center; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-height: 0; }
+        .upload-container.dragover { border-color: var(--primary); background-color: #eef2ff; }
+        .icon-cloud { color: var(--primary); margin-bottom: 1rem; background: #eef2ff; padding: 1rem; border-radius: 50%; display: inline-flex; }
+        .icon-cloud svg { width: 40px; height: 40px; }
+        .upload-text { font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .subtext { color: var(--text-sub); margin-bottom: 1rem; font-size: 0.9rem; }
+        .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.65rem 1.25rem; border-radius: 0.5rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; font-size: 0.95rem; text-decoration: none; }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); transform: translateY(-1px); }
+        .btn-secondary { background-color: white; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-secondary:hover { background-color: #f8fafc; border-color: #cbd5e1; }
+        .btn-action { background-color: var(--text-main); color: white; padding: 0.75rem 1.5rem; font-size: 1rem; }
+        .btn-action:hover { background-color: black; }
+        .processing-container { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; min-height: 0; }
+        .loader { width: 48px; height: 48px; border: 5px solid #e2e8f0; border-bottom-color: var(--primary); border-radius: 50%; animation: rotation 1s linear infinite; margin-bottom: 1.5rem; }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .result-section { display: flex; gap: 1.5rem; width: 100%; flex: 1; min-height: 0; }
+        .img-card { flex: 1; background: var(--card-bg); border-radius: 1rem; padding: 0.75rem; box-shadow: var(--shadow); display: flex; flex-direction: column; border: 1px solid var(--border); min-height: 0; }
+        .img-card h3 { font-size: 0.875rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.05em; flex-shrink: 0; }
+        .img-wrapper { flex: 1; background-color: #f1f5f9; background-image: linear-gradient(45deg, #e2e8f0 25%, transparent 25%), linear-gradient(-45deg, #e2e8f0 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #e2e8f0 75%), linear-gradient(-45deg, transparent 75%, #e2e8f0 75%); background-size: 20px 20px; background-position: 0 0, 0 10px, 10px -10px, -10px 0px; border-radius: 0.5rem; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; min-height: 0; }
+        .img-wrapper img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+        .actions { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; padding-bottom: 0.5rem; flex-shrink: 0; }
+        .error-message { color: #ef4444; background-color: #fef2f2; padding: 0.75rem; border-radius: 0.5rem; margin-top: 0.75rem; border: 1px solid #fee2e2; font-size: 0.9rem; }
+        .hidden { display: none !important; }
+        footer { text-align: center; color: var(--text-sub); font-size: 0.8rem; margin-top: auto; padding: 0.5rem 0; flex-shrink: 0; }
+        .blur-controls { margin-top: 0.75rem; padding: 0.75rem; background: #f8fafc; border-radius: 0.5rem; display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
+        .blur-controls label { font-size: 0.9rem; font-weight: 500; }
+        .blur-controls input[type="range"] { flex: 1; accent-color: var(--primary); }
+        .blur-controls span { font-size: 0.9rem; font-weight: 600; min-width: 20px; }
+        .chat-container { flex: 1; display: flex; flex-direction: column; background: var(--card-bg); border: 1px solid var(--border); border-radius: 1rem; box-shadow: var(--shadow); overflow: hidden; min-height: 0; }
+        .chat-messages { flex: 1; padding: 1rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; background-color: #f8fafc; min-height: 0; }
+        .message { display: flex; flex-direction: column; max-width: 80%; gap: 0.5rem; }
+        .message.user { align-self: flex-end; align-items: flex-end; }
+        .message.bot { align-self: flex-start; align-items: flex-start; }
+        .message-bubble { padding: 0.65rem 0.9rem; border-radius: 1rem; font-size: 0.95rem; line-height: 1.5; position: relative; }
+        .message.user .message-bubble { background-color: var(--primary); color: white; border-bottom-right-radius: 0.25rem; }
+        .message.bot .message-bubble { background-color: white; border: 1px solid var(--border); color: var(--text-main); border-bottom-left-radius: 0.25rem; box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05); }
+        .message-img { max-width: 200px; border-radius: 0.75rem; border: 1px solid var(--border); box-shadow: 0 2px 4px rgb(0 0 0 / 0.1); }
+        .chat-input-area { padding: 0.75rem; background: white; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; align-items: center; flex-shrink: 0; }
+        .input-wrapper { flex: 1; position: relative; }
+        .chat-input-area input[type="text"] { width: 100%; padding: 0.65rem 0.9rem; border: 1px solid var(--border); border-radius: 0.5rem; font-size: 0.95rem; outline: none; transition: border-color 0.2s; }
+        .chat-input-area input[type="text"]:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1); }
+        .chat-btn { background: none; border: none; cursor: pointer; color: var(--text-sub); padding: 0.5rem; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .chat-btn:hover { background-color: #f1f5f9; color: var(--primary); }
+        .chat-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .send-btn { background-color: var(--primary); color: white; padding: 0.65rem; }
+        .send-btn:hover { background-color: var(--primary-hover); color: white; }
+        @media (max-width: 768px) { .hero h1 { font-size: 2rem; } .container { padding: 0.75rem; } .feature-showcase { gap: 1rem; } .result-section { flex-direction: column; } }
+
+        /* Hamburger Menu */
+        .hamburger { display: none; flex-direction: column; background: none; border: none; cursor: pointer; padding: 0.5rem; z-index: 1001; }
+        .hamburger span { width: 25px; height: 3px; background-color: var(--text-main); margin: 3px 0; transition: 0.3s; border-radius: 3px; }
+        .hamburger.active span:nth-child(1) { transform: rotate(-45deg) translate(-5px, 6px); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: rotate(45deg) translate(-5px, -6px); }
+        @media (max-width: 768px) {
+            body { overflow-y: auto; height: auto; }
+            .container { height: auto; min-height: 100vh; overflow: visible; }
+            .hamburger { display: flex; }
+            nav { position: fixed; top: 0; right: -100%; width: 70%; max-width: 300px; height: 100vh; background: white; box-shadow: -2px 0 10px rgba(0,0,0,0.1); transition: right 0.3s ease; z-index: 1000; padding: 5rem 0 2rem 0; }
+            nav.active { right: 0; }
+            nav ul { flex-direction: column; gap: 0; padding: 0; }
+            nav ul li { width: 100%; border-bottom: 1px solid var(--border); }
+            nav ul li a { display: block; padding: 1rem 2rem; width: 100%; }
+            main { overflow-y: auto; }
+            .hero h1 { font-size: 1.75rem; }
+            .container { padding: 0.5rem 1rem; }
+            .feature-showcase { flex-direction: column; align-items: center; }
+            .feature-card { width: 100%; max-width: 280px; }
+            .result-section { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo" onclick="showHome()">Snaps <span>Editor</span></div>
+            <button class="hamburger" id="hamburger" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <nav id="nav-menu"><ul>
+                <li><a href="#" class="active">Remove Background</a></li>
+                <li><a href="#">Blur Image</a></li>
+                <li><a href="#">AI Background</a></li>
+                <li><a href="#">Pricing</a></li>
+            </ul></nav>
+        </header>
+        <main>
+            <div class="hero">
+                <h1>Snaps <span>Editor</span></h1>
+                <p>Upload an image and let our AI automatically extract the subject with pixel-perfect precision.</p>
+            </div>
+            <div id="home-view">
+                <div class="home-banner">
+                    <div class="feature-container">
+                        <div class="feature-showcase">
+                            <div class="feature-card" id="remove-bg-trigger">
+                                <img src="/static/remove-background.png" alt="Remove Background">
+                                <p>Remove Background</p>
+                            </div>
+                            <div class="feature-card" id="blur-trigger">
+                                <img src="/static/blur-image.jpg" alt="Blur Image">
+                                <p>Blur Image</p>
+                            </div>
+                            <div class="feature-card" id="ai-bg-trigger">
+                                <img src="/static/ai-background.png" alt="AI Background">
+                                <p>AI Background</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="tool-view" class="hidden">
+                <div class="tool-header">
+                    <button class="back-btn" onclick="showHome()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        Back
+                    </button>
+                    <h2 class="tool-title">Remove Background</h2>
+                </div>
+                <div class="upload-container" id="upload-section">
+                    <div class="drop-zone" id="drop-zone">
+                        <div class="icon-cloud">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                        </div>
+                        <h3 class="upload-text">Drop your image here</h3>
+                        <p class="subtext">Supports JPG, PNG up to 10MB</p>
+                        <button class="btn btn-primary" id="upload-btn">Upload Image</button>
+                        <input type="file" id="file-input" accept="image/*" hidden>
+                    </div>
+                    <div id="file-info" class="file-info"></div>
+                    <div id="error-message" class="error-message hidden"></div>
+                    <button id="process-btn" class="btn btn-action hidden" style="margin-top: 1rem;">Process Image</button>
+                </div>
+                <div class="processing-container hidden" id="processing-section">
+                    <div class="loader"></div>
+                    <p>Processing your image...</p>
+                </div>
+                <div class="result-section hidden" id="result-section">
+                    <div class="img-card">
+                        <h3>Original</h3>
+                        <div class="img-wrapper">
+                            <img id="original-img" src="" alt="Original">
+                        </div>
+                    </div>
+                    <div class="img-card">
+                        <h3>Result</h3>
+                        <div class="img-wrapper">
+                            <img id="processed-img" src="" alt="Processed">
+                        </div>
+                        <div id="blur-controls" class="blur-controls hidden">
+                            <label for="blur-slider">Blur</label>
+                            <input type="range" id="blur-slider" min="0" max="10" value="5">
+                            <span id="blur-value">5</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="actions hidden" id="result-actions">
+                    <a id="download-btn" href="#" class="btn btn-primary" download="processed.png">Download HD</a>
+                    <button id="reset-btn" class="btn btn-secondary">Try Another</button>
+                </div>
+            </div>
+            <div id="ai-background-section" class="hidden" style="flex: 1; display: flex; flex-direction: column; min-height: 0;">
+                <div class="tool-header">
+                    <button class="back-btn" onclick="showHome()">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="19" y1="12" x2="5" y2="12"></line>
+                            <polyline points="12 19 5 12 12 5"></polyline>
+                        </svg>
+                        Back
+                    </button>
+                    <h2 class="tool-title">AI Background</h2>
+                </div>
+                <div class="chat-container">
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message bot">
+                            <div class="message-bubble">Hi! Upload an image and tell me what background you want. 🎨</div>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="file" id="chat-file-input" accept="image/*" hidden>
+                        <button class="chat-btn" id="chat-file-btn" title="Upload Image">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                            </svg>
+                        </button>
+                        <div class="input-wrapper">
+                            <input type="text" id="chat-prompt-input" placeholder="Describe the background (e.g., 'sunset beach', 'blue sky')..." disabled>
+                        </div>
+                        <button class="chat-btn send-btn" id="chat-send-btn" disabled>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        <footer><p>&copy; 2025 Snaps Editor by Nchoolwe Progress Sinampande. All rights reserved.</p></footer>
+    </div>
+    <script>
+        let currentMode='remove-bg',selectedFile=null,removedBgBlob=null;
+const dynamicWords=['Editor','Remover','Transformer','Enhancer'];
+let wordIndex=0,typingTimeout=null;
+function updateHeroText(m){const h=document.querySelector('.hero h1'),p=document.querySelector('.hero p');const c={home:{t:'Snaps <span>Editor</span>',d:'Upload an image and let our AI automatically extract the subject with pixel-perfect precision.'},'remove-bg':{t:'Remove <span>Background</span>',d:'Instantly remove backgrounds from your images using advanced AI technology. Get professional results in seconds.'},blur:{t:'Blur <span>Background</span>',d:'Create stunning portrait-style effects by blurring the background while keeping your subject sharp and in focus.'},'ai-background':{t:'AI <span>Background</span>',d:'Transform your images with AI-generated backgrounds. Describe what you want and watch the magic happen.'}};if(c[m]){h.innerHTML=c[m].t;p.textContent=c[m].d}}
+function startTyping(){if(typingTimeout)clearTimeout(typingTimeout);const sp=document.querySelector('.hero h1 span'),hv=document.getElementById('home-view');if(!sp||!hv||hv.classList.contains('hidden'))return;let idx=0,deleting=false;function type(){const word=dynamicWords[wordIndex];if(deleting){sp.textContent=word.substring(0,idx);idx--}else{sp.textContent=word.substring(0,idx+1);idx++}let speed=deleting?40:120;if(!deleting&&idx>word.length){speed=2000;deleting=true}else if(deleting&&idx===0){deleting=false;wordIndex=(wordIndex+1)%dynamicWords.length;speed=500}typingTimeout=setTimeout(type,speed)}type()}
+function stopTyping(){if(typingTimeout){clearTimeout(typingTimeout);typingTimeout=null}}
+function showHome(){document.getElementById('home-view').classList.remove('hidden');document.getElementById('tool-view').classList.add('hidden');document.getElementById('ai-background-section').classList.add('hidden');
+const navLinks=document.querySelectorAll('nav ul li a');navLinks.forEach(link=>link.classList.remove('active'));
+if(navLinks[0])navLinks[0].classList.add('active');
+updateHeroText('home');setTimeout(startTyping,200)}function showTool(t){currentMode=t;stopTyping();updateHeroText(t);document.getElementById('home-view').classList.add('hidden');const e=document.getElementById('tool-view'),o=document.getElementById('ai-background-section');e.classList.add('hidden'),o.classList.add('hidden');
+const navLinks=document.querySelectorAll('nav ul li a');navLinks.forEach(link=>link.classList.remove('active'));
+if(t==='remove-bg'&&navLinks[0])navLinks[0].classList.add('active');
+else if(t==='blur'&&navLinks[1])navLinks[1].classList.add('active');
+else if(t==='ai-background'&&navLinks[2])navLinks[2].classList.add('active');
+if('ai-background'===t)o.classList.remove('hidden');else{e.classList.remove('hidden');const n=document.querySelector('#tool-view .tool-title'),r=document.querySelector('.upload-text');'blur'===t?(n.textContent='Blur Image Background',r.textContent='Upload image to blur background'):(n.textContent='Remove Background',r.textContent='Drop your image here')}}document.addEventListener('DOMContentLoaded',()=>{setTimeout(startTyping,800);const hamburger=document.getElementById('hamburger'),navMenu=document.getElementById('nav-menu');if(hamburger&&navMenu){hamburger.addEventListener('click',()=>{hamburger.classList.toggle('active');navMenu.classList.toggle('active')});navMenu.querySelectorAll('a').forEach(link=>{link.addEventListener('click',()=>{hamburger.classList.remove('active');navMenu.classList.remove('active')})})}const e=document.getElementById('file-input'),o=document.getElementById('upload-btn'),t=document.getElementById('drop-zone'),n=document.getElementById('file-info'),r=document.getElementById('process-btn'),l=document.getElementById('upload-section'),a=document.getElementById('processing-section'),i=document.getElementById('result-section'),d=document.getElementById('result-actions'),s=document.getElementById('original-img'),c=document.getElementById('processed-img'),u=document.getElementById('download-btn'),p=document.getElementById('reset-btn'),g=document.getElementById('error-message'),m=document.getElementById('blur-controls'),h=document.getElementById('blur-slider'),f=document.getElementById('blur-value'),b=document.getElementById('remove-bg-trigger'),v=document.getElementById('blur-trigger'),y=document.getElementById('ai-bg-trigger'),E=document.querySelector('nav ul li:nth-child(1) a'),I=document.querySelector('nav ul li:nth-child(2) a'),L=document.querySelector('nav ul li:nth-child(3) a'),w=c.parentElement,k=document.createElement('div');k.id='blur-composite',k.className='hidden',k.style.position='absolute',k.style.top='0',k.style.left='0',k.style.width='100%',k.style.height='100%';const B=document.createElement('img');B.id='blur-bg',B.style.position='absolute',B.style.top='50%',B.style.left='50%',B.style.transform='translate(-50%, -50%)',B.style.maxWidth='100%',B.style.maxHeight='100%',B.style.objectFit='contain';const C=document.createElement('img');C.id='blur-fg',C.style.position='absolute',C.style.top='50%',C.style.left='50%',C.style.transform='translate(-50%, -50%)',C.style.maxWidth='100%',C.style.maxHeight='100%',C.style.objectFit='contain',k.appendChild(B),k.appendChild(C),w.appendChild(k),b&&b.addEventListener('click',()=>showTool('remove-bg')),v&&v.addEventListener('click',()=>showTool('blur')),y&&y.addEventListener('click',()=>showTool('ai-background')),E&&E.addEventListener('click',e=>{e.preventDefault(),showTool('remove-bg')}),I&&I.addEventListener('click',e=>{e.preventDefault(),showTool('blur')}),L&&L.addEventListener('click',e=>{e.preventDefault(),showTool('ai-background')});const S=document.getElementById('chat-messages'),x=document.getElementById('chat-file-input'),D=document.getElementById('chat-file-btn'),A=document.getElementById('chat-prompt-input'),T=document.getElementById('chat-send-btn');let M=null;function F(e,o=null){const t=document.createElement('div');t.className='message user';let n='';o&&(n+=`<img src="${o}" class="message-img" alt="User Upload">`),e&&(n+=`<div class="message-bubble">${e}</div>`),t.innerHTML=n,S.appendChild(t),S.scrollTop=S.scrollHeight}function H(e,o=null,t=!1){const n='msg-'+Date.now(),r=document.createElement('div');r.className='message bot',r.id=n;let l='';return o&&(l+=`<img src="${o}" class="message-img" alt="Generated Image">`,t&&(l+=`<div style="margin-top: 0.5rem;"><a href="${o}" download="ai-background.png" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Download</a></div>`)),e&&(l+=`<div class="message-bubble">${e}</div>`),r.innerHTML=l,S.appendChild(r),S.scrollTop=S.scrollHeight,n}function N(e){if(!e.type.match('image.*'))return void O('Please select a valid image file (JPG or PNG).');if(e.size>10485760)return void O('File size too large. Please select an image under 10MB.');selectedFile=e,n.textContent=`Selected: ${e.name}`,r.classList.remove('hidden'),g.classList.add('hidden');const o=new FileReader;o.onload=e=>{s.src=e.target.result,B.src=e.target.result},o.readAsDataURL(e)}async function P(){if('blur'===currentMode&&selectedFile&&removedBgBlob){u.textContent='Generating...',u.style.opacity='0.6';try{const e=new FormData;e.append('original',selectedFile),e.append('subject',removedBgBlob),e.append('blur',h.value),console.log('Sending blur with intensity:',h.value);const o=await fetch('/blur-background',{method:'POST',body:e});if(!o.ok){const t=await o.text();throw new Error('Failed: '+t)}const t=await o.blob(),n=URL.createObjectURL(t);u.href&&u.href.startsWith('blob:')&&URL.revokeObjectURL(u.href),u.href=n,u.download='blurred-bg.png',u.textContent='Download HD',u.style.opacity='1',console.log('Blur ready:',h.value)}catch(e){console.error('Download error:',e),u.textContent='Download HD',u.style.opacity='1',O('Failed: '+e.message)}}}function O(e){g.textContent=e,g.classList.remove('hidden')}D&&D.addEventListener('click',()=>x.click()),x&&x.addEventListener('change',e=>{if(e.target.files.length){const o=e.target.files[0];if(!o.type.match('image.*'))return void H('Please select a valid image file (JPG or PNG).');M=o,A.disabled=!1,T.disabled=!1,A.focus();const t=new FileReader;t.onload=e=>{F(null,e.target.result),H('Great! Now describe the background you want.')},t.readAsDataURL(o)}}),A&&A.addEventListener('keypress',e=>{'Enter'!==e.key||T.disabled||T.click()}),T&&T.addEventListener('click',async()=>{const e=A.value.trim();if(e&&M){A.value='',A.disabled=!0,T.disabled=!0,F(e);const o=H('Generating background... 🎨'),t=new FormData;t.append('image',M),t.append('prompt',e);try{const e=await fetch('/ai-background',{method:'POST',body:t});if(!e.ok)throw new Error(await e.text()||'Failed to generate background');const n=await e.blob(),r=URL.createObjectURL(n),l=document.getElementById(o);l&&l.remove(),H('Here is your image with the new background!',r,!0),M=null,x.value='',H('Upload another image to try again!')}catch(e){console.error('Error:',e);const t=document.getElementById(o);t&&t.remove(),H('Sorry, something went wrong: '+e.message),A.disabled=!1,T.disabled=!1}}}),o.addEventListener('click',()=>e.click()),t.addEventListener('dragover',e=>{e.preventDefault(),t.classList.add('dragover')}),t.addEventListener('dragleave',()=>{t.classList.remove('dragover')}),t.addEventListener('drop',e=>{e.preventDefault(),t.classList.remove('dragover'),e.dataTransfer.files.length&&N(e.dataTransfer.files[0])}),e.addEventListener('change',e=>{e.target.files.length&&N(e.target.files[0])}),h.addEventListener('input',e=>{const o=e.target.value;f.textContent=o;const t=2*o;B.style.filter=`blur(${t}px)`,P()}),r.addEventListener('click',async()=>{if(selectedFile){l.classList.add('hidden'),a.classList.remove('hidden'),g.classList.add('hidden');const e=new FormData;e.append('image',selectedFile);const o=new AbortController,t=setTimeout(()=>o.abort(),6e4);try{const t=await fetch('/remove-bg',{method:'POST',body:e,signal:o.signal});if(clearTimeout(t),!t.ok)throw new Error(await t.text()||'Failed to process image');const n=await t.blob();removedBgBlob=n;const r=URL.createObjectURL(n);if('blur'===currentMode){c.classList.add('hidden'),k.classList.remove('hidden'),m.classList.remove('hidden'),B.src&&B.src!==window.location.href||(B.src=s.src),C.onload=()=>P(),C.src=r;const e=h.value,o=2*e;B.style.filter=`blur(${o}px)`}else c.classList.remove('hidden'),k.classList.add('hidden'),m.classList.add('hidden'),c.src=r,u.href=r,u.download='removed-bg.png';a.classList.add('hidden'),i.classList.remove('hidden'),d.classList.remove('hidden')}catch(e){console.error('Error:',e),a.classList.add('hidden'),l.classList.remove('hidden'),r.classList.remove('hidden'),'AbortError'===e.name?O('Request timed out.'):O('An error occurred: '+e.message)}}}),p.addEventListener('click',()=>{selectedFile=null,removedBgBlob=null,e.value='',n.textContent='',r.classList.add('hidden'),i.classList.add('hidden'),d.classList.add('hidden'),l.classList.remove('hidden'),g.classList.add('hidden'),c.src&&(URL.revokeObjectURL(c.src),c.src=''),C.src&&(URL.revokeObjectURL(C.src),C.src='')})});
+    </script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.venv/
+.vscode/
+*.log
+test_*.jpg
+test_*.png
