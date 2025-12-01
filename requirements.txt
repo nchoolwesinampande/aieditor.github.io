@@ -1,6 +1,4 @@
-flask
+﻿flask
+gunicorn
 rembg
 pillow
-waitress
-google-generativeai
-gunicorn
