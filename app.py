@@ -12,11 +12,13 @@ License: MIT
 """
 
 import os
+import io
+import random
+
+import requests
 from flask import Flask, render_template, request, send_file
 from rembg import remove
 from PIL import Image, ImageDraw, ImageFilter
-import io
-import random
 
 app = Flask(__name__)
 
@@ -44,29 +46,19 @@ def remove_bg():
         return 'No image selected', 400
 
     try:
-        import datetime
-        def log(msg):
-            with open('debug.log', 'a') as f: f.write(f"{datetime.datetime.now()}: {msg}\n")
-            
-        log("Processing started...")
         input_image = Image.open(file.stream)
-        log("Image opened, removing background...")
         output_image = remove(input_image)
-        log("Background removed, saving...")
         
         img_io = io.BytesIO()
         output_image.save(img_io, 'PNG')
         img_io.seek(0)
-        log(f"Processing complete, sending response. Size: {img_io.getbuffer().nbytes} bytes")
         
         return send_file(
             img_io,
-            mimetype='image/png',
-            as_attachment=True,
-            download_name='removed-background.png'
+            mimetype='image/png'
         )
     except Exception as e:
-        with open('debug.log', 'a') as f: f.write(f"Error: {e}\n")
+        print(f"Error removing background: {e}")
         return str(e), 500
 
 @app.route('/ai-background', methods=['POST'])
@@ -101,14 +93,6 @@ def ai_background():
         print("ERROR: No image selected")
         return 'No image selected', 400
 
-    # Debug logging
-    try:
-        with open('backend_debug.log', 'a') as f:
-            import datetime
-            f.write(f"[{datetime.datetime.now()}] Request received. File: {file.filename}, Prompt: {prompt}\n")
-    except:
-        pass
-
     try:
         print("Starting image processing...")
 
@@ -120,7 +104,6 @@ def ai_background():
         subject = remove(input_image)
         
         # 2. Generate AI background using Pollinations.ai (free Stable Diffusion API)
-        import requests
         
         # Enhance the prompt for better background generation
         enhanced_prompt = f"professional photography background scene, {prompt}, high quality, detailed, 8k, photorealistic, no people, no text, landscape background"
@@ -161,9 +144,7 @@ def ai_background():
                 print("Success! Sending AI-generated image")
                 return send_file(
                     img_io,
-                    mimetype='image/png',
-                    as_attachment=True,
-                    download_name='ai-background.png'
+                    mimetype='image/png'
                 )
             else:
                 print(f"API returned status code: {response.status_code}")
@@ -240,27 +221,14 @@ def ai_background():
             
             return send_file(
                 img_io,
-                mimetype='image/png',
-                as_attachment=True,
-                download_name='ai-background.png'
+                mimetype='image/png'
             )
         
     except Exception as e:
         error_msg = f"Error in ai_background: {str(e)}"
         print(error_msg)
         import traceback
-        traceback_str = traceback.format_exc()
-        print(traceback_str)
-        
-        # Write to error log file
-        try:
-            with open('backend_error.log', 'a') as f:
-                import datetime
-                f.write(f"\n[{datetime.datetime.now()}] {error_msg}\n")
-                f.write(traceback_str)
-        except:
-            pass
-            
+        print(traceback.format_exc())
         return str(e), 500
 
 @app.route('/blur-background', methods=['POST'])
@@ -304,9 +272,7 @@ def blur_background():
         
         return send_file(
             img_io, 
-            mimetype='image/png',
-            as_attachment=True,
-            download_name='blurred-background.png'
+            mimetype='image/png'
         )
         
     except Exception as e:

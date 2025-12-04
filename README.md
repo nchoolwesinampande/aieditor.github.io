@@ -1,3 +1,14 @@
+# Snaps Editor - AI Background Remover & Editor
+
+A powerful web application for AI-powered image background removal, blurring, and AI background generation.
+
+![Snaps Editor](https://img.shields.io/badge/Snaps-Editor-purple) ![Python](https://img.shields.io/badge/Python-3.8+-blue) ![Flask](https://img.shields.io/badge/Flask-3.0+-green)
+
+## ✨ Features
+
+### 1. Remove Background
+- AI-powered background removal using `rembg`
+- Supports JPG and PNG images up to 10MB
 - Download high-quality PNG with transparent background
 - Drag-and-drop support
 
@@ -7,36 +18,40 @@
 - Server-side blur rendering for reliable downloads
 - Blur applied only to background, subject stays sharp
 
-### 3. AI Background (Mock)
+### 3. AI Background
 - Chat-based interface
 - Upload image and describe desired background
-- Generates mock AI backgrounds
+- AI-powered background generation
 
-## Technology Stack
+## 🛠 Technology Stack
 
 ### Backend
 - **Flask**: Python web framework
 - **rembg**: AI background removal library
 - **Pillow (PIL)**: Image processing and Gaussian blur
-- **ImageFilter**: Server-side blur effects
 
 ### Frontend
 - **HTML5**: Semantic markup
 - **CSS3**: Modern styling with custom properties
 - **Vanilla JavaScript**: No framework dependencies
-- **Canvas API**: Image compositing
 
-## Installation
+## 🚀 Installation
 
 1. **Clone the repository**
    ```bash
-   cd backgroundremover
+   git clone https://github.com/yourusername/snaps-editor.git
+   cd snaps-editor
    ```
 
 2. **Create virtual environment**
    ```bash
    python -m venv .venv
-   .venv\Scripts\activate  # Windows
+   
+   # Windows
+   .venv\Scripts\activate
+   
+   # Mac/Linux
+   source .venv/bin/activate
    ```
 
 3. **Install dependencies**
@@ -54,22 +69,26 @@
    http://localhost:5000
    ```
 
-## Project Structure
+## 📁 Project Structure
 
 ```
-backgroundremover/
+snaps-editor/
 ├── app.py                      # Flask application
 ├── requirements.txt            # Python dependencies
+├── README.md                   # Documentation
+├── QUICKSTART.md               # Quick start guide
+├── .gitignore                  # Git ignore file
 ├── templates/
-│   └── index.html             # Single-page application
-├── static/
-│   ├── remove-background.png  # Feature preview image
-│   ├── blur-image.jpg         # Feature preview image
-│   └── ai-background.png      # Feature preview image
-└── .venv/                     # Virtual environment (not in repo)
+│   └── index.html              # Single-page application
+└── static/
+    ├── style.css               # Application styles
+    ├── script.js               # Application logic
+    ├── remove-background.png   # Feature preview image
+    ├── blur-image.jpg          # Feature preview image
+    └── ai-background.png       # Feature preview image
 ```
 
-## API Endpoints
+## 🔌 API Endpoints
 
 ### POST /remove-bg
 Removes background from uploaded image.
@@ -85,46 +104,28 @@ Creates blurred background composite.
 - **Output**: PNG image with blurred background
 
 ### POST /ai-background
-Mock AI background generation.
+AI background generation.
 - **Input**: 
   - `image` (multipart/form-data)
   - `prompt` (text description)
-- **Output**: PNG image with colored background (mock)
+- **Output**: PNG image with AI-generated background
 
-## Features in Detail
+## 🎨 Design Highlights
 
-### Blur Feature Workflow
-1. User uploads image
-2. Backend removes background using `rembg`
-3. Frontend displays:
-   - Original image
-   - Subject overlaid on blurred background
-4. User adjusts blur slider (0-10)
-5. Visual blur updates in real-time (CSS filter)
-6. On download:
-   - Frontend sends original + subject + blur intensity to backend
-   - Backend applies Gaussian blur to original
-   - Backend composites blurred background with sharp subject
-   - Returns final PNG
-
-### Design Highlights
 - **Viewport-fitted**: All content fits without scrolling
 - **Modern gradient UI**: Purple-gradient feature cards
 - **Responsive**: Works on mobile and desktop
 - **Glassmorphism**: Frosted glass effect on cards
 - **Smooth animations**: Hover effects and transitions
 
-## Development Notes
-
-- All JavaScript is minified in production HTML
-- Server-side blur ensures cross-browser compatibility
-- No external CSS/JS files - everything in one HTML file
-- Uses modern CSS (grid, flexbox, custom properties)
-
-## License
+## 📝 License
 
 MIT License - feel free to use for any purpose.
 
-## Author
+## 👤 Author
 
-Built with ❤️ using Flask and AI
+Built by **Nchoolwe Progress Sinampande**
+
+---
+
+© 2025 Snaps Editor. All rights reserved.
